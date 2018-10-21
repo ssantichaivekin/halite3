@@ -12,21 +12,18 @@
 using namespace std;
 using namespace hlt;
 
-/// Change the game map
-void MovementMap::init(shared_ptr<GameMap>& gameMap) {
+/// *************** Public section ****************
+
+MovementMap::MovementMap(shared_ptr<GameMap>& gameMap) {
     gameMap_ = gameMap;
-}
-
-/// Reset everything. Use for new turn.
-void MovementMap::clear() {
-    shipsComingtoPos_.clear();
-    shipDirectionQueue_.clear();
+    shipsComingtoPos_ = {};
+    shipDirectionQueue_ = {};
     allConflicts_ = {};
+    shouldMakeShip_ = false;
 }
 
-void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction>& preferredDirs, bool ignoreEnemy = false) {
+void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDirs, bool ignoreEnemy) {
     if (!gameMap_->can_move(ship)) {
-        Position currentPos = ship->position;
         shipDirectionQueue_[ship->position].push(Direction::STILL);
         shipsComingtoPos_[ship->position].push_back(ship);
         return;
@@ -57,8 +54,13 @@ bool MovementMap::isFreeSpace(Position pos) {
     return shipsComingtoPos_[pos].size() == 0;
 }
 
+void MovementMap::makeShip() {
+    shouldMakeShip_ = true;
+}
+
 /// Flush the outputs to Halite game engine
-void MovementMap::flushOutputs(Game& game) {
+bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
+    // Get all the directions
     vector<Command> command_queue;
     for (auto kv : shipDirectionQueue_) {
         Position shipPos = kv.first;
@@ -66,7 +68,12 @@ void MovementMap::flushOutputs(Game& game) {
         Direction dir = currentDirection(ship);
         command_queue.push_back(ship->move(dir));
     }
-    game.end_turn(command_queue);
+
+    // Spawn a ship
+    if (isFreeSpace(me->shipyard->position)) {
+        command_queue.push_back(me->shipyard->spawn());
+    }
+    return game.end_turn(command_queue);
 }
 
 /// *************** Private section ****************

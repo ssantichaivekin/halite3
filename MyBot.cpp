@@ -15,31 +15,34 @@ using namespace hlt;
 /// Process one turn
 /// You can take at most 2 seconds per turn.
 int gameTurn(mt19937 &rng, Game &game) {
+
+    // get input data from game engine
     game.update_frame();
     shared_ptr<Player> me = game.me;
     shared_ptr<GameMap>& game_map = game.game_map;
+    // end get input data from game engine
 
-    vector<Command> command_queue;
+    MovementMap movementMap = MovementMap(game_map);
 
     for (const auto& ship_iterator : me->ships) {
         shared_ptr<Ship> ship = ship_iterator.second;
         if (game_map->can_move(ship) &&
                  (game_map->at(ship)->halite < constants::MAX_HALITE / 10 || ship->is_full())) {
             Direction random_direction = ALL_CARDINALS[rng() % 4];
-            command_queue.push_back(ship->move(random_direction));
+            movementMap.addIntent(ship, {random_direction});
         }
         else {
-            command_queue.push_back(ship->stay_still());
+            movementMap.addIntent(ship, {Direction::STILL});
         }
     }
 
     if (game.turn_number <= 200 &&
         me->halite >= constants::SHIP_COST &&
         !game_map->at(me->shipyard)->is_occupied()) {
-        command_queue.push_back(me->shipyard->spawn());
+        movementMap.makeShip();
     }
 
-    bool result =  game.end_turn(command_queue);
+    bool result = movementMap.processOutputsAndEndTurn(game, me);
     return result;
 }
 

@@ -16,6 +16,8 @@ CMakeFiles/MyBot.dir/MyBot.cpp.o: hlt/position.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: hlt/ship.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: hlt/shipyard.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: hlt/types.hpp
+CMakeFiles/MyBot.dir/MyBot.cpp.o: movement_map.cpp
+CMakeFiles/MyBot.dir/MyBot.cpp.o: movement_map.hpp
 
 CMakeFiles/MyBot.dir/hlt/command.cpp.o: hlt/command.cpp
 CMakeFiles/MyBot.dir/hlt/command.cpp.o: hlt/command.hpp
