@@ -47,6 +47,10 @@ namespace hlt {
                 directional_offset(Direction::EAST), directional_offset(Direction::WEST)
             }};
         }
+
+        std::string toString() {
+            return std::to_string(x) + " " + std::to_string(y);
+        }
     };
 
     static std::ostream& operator<<(std::ostream& out, const Position& position) {

@@ -26,11 +26,7 @@ public:
     /// Tell the map that the ship is intending to move in the following direction(s)
     /// Adding a direction here implies that the second direction is 
     /// almost as good as the first one.
-    void addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDirs, bool ignoreEnemy = false);
-
-    /// Resolve the conflicts at all positions
-    /// by changing the intent of ships surrounding those positions.
-    void resolveAllConflicts();
+    void addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDirs, bool ignoreOpponentFlag = false);
 
     /// Only call after resolve all conflicts()
     bool isFreeSpace(Position pos);
@@ -40,6 +36,8 @@ public:
 
     /// Flush the outputs to Halite game engine
     bool processOutputsAndEndTurn(Game& game, shared_ptr<Player> me);
+
+    void logTurn(shared_ptr<Player> me);
 
 private:
     /// The direction a ship is intending to go
@@ -58,6 +56,8 @@ private:
     /// Redirect a ship until it has no conflict or has stopped.
     void redirectShip(shared_ptr<Ship> ship);
 
+    void redirectShips(vector<shared_ptr<Ship>> ships);
+
     /// Does this block has conflict?
     bool hasConflict(Position& pos);
 
@@ -69,12 +69,16 @@ private:
 
     /// resolve a conflict at the position middlePos
     void resolveConflict(Position middlePos);
+
+    /// Resolve the conflicts at all positions
+    /// by changing the intent of ships surrounding those positions.
+    void resolveAllConflicts();
     
     shared_ptr<GameMap> gameMap_;
     unordered_map<Position, vector<shared_ptr<Ship>>> shipsComingtoPos_;
     unordered_map<Position, queue<Direction>> shipDirectionQueue_;
     queue<Position> allConflicts_;
 
-    unordered_map<Position, bool> shipIgnoresEnemy_;
+    unordered_map<Position, bool> shipIgnoresOpponent_;
     bool shouldMakeShip_;
 };

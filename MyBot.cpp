@@ -42,7 +42,9 @@ int gameTurn(mt19937 &rng, Game &game) {
         movementMap.makeShip();
     }
 
+    movementMap.logTurn(me);
     bool result = movementMap.processOutputsAndEndTurn(game, me);
+    movementMap.logTurn(me);
     return result;
 }
 

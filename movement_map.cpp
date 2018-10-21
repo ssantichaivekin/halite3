@@ -22,7 +22,8 @@ MovementMap::MovementMap(shared_ptr<GameMap>& gameMap) {
     shouldMakeShip_ = false;
 }
 
-void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDirs, bool ignoreEnemy) {
+void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDirs, bool ignoreOpponentFlag) {
+    shipIgnoresOpponent_[ship->position] = ignoreOpponentFlag;
     if (!gameMap_->can_move(ship)) {
         shipDirectionQueue_[ship->position].push(Direction::STILL);
         shipsComingtoPos_[ship->position].push_back(ship);
@@ -37,19 +38,6 @@ void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDi
     shipsComingtoPos_[newPos].push_back(ship);
 }
 
-/// Initialize allConflicts_ and call resolve all
-void MovementMap::resolveAllConflicts() {
-    // Loop through the shipsComingtoPos_, obtain all conflicts
-    // and keep it in a stack.
-    for (auto kv : shipsComingtoPos_) {
-        Position pos = kv.first;
-        if (hasConflict(pos)) {
-            allConflicts_.push(pos);
-        }
-    }
-    iterateAndResolveConflicts();
-}
-
 bool MovementMap::isFreeSpace(Position pos) {
     return shipsComingtoPos_[pos].size() == 0;
 }
@@ -60,6 +48,9 @@ void MovementMap::makeShip() {
 
 /// Flush the outputs to Halite game engine
 bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
+    // Resolve all conflicts
+    resolveAllConflicts();
+
     // Get all the directions
     vector<Command> command_queue;
     for (auto kv : shipDirectionQueue_) {
@@ -70,10 +61,19 @@ bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
     }
 
     // Spawn a ship
-    if (isFreeSpace(me->shipyard->position)) {
+    if (shouldMakeShip_ && isFreeSpace(me->shipyard->position)) {
         command_queue.push_back(me->shipyard->spawn());
     }
     return game.end_turn(command_queue);
+}
+
+void MovementMap::logTurn(shared_ptr<Player> me) {
+    for (auto ship_iterator : me->ships) {
+        shared_ptr<Ship> ship = ship_iterator.second;
+        Position nextPos = destinationPos(ship);
+        log::log("ship position " + ship->position.toString() +
+                 " -> " + nextPos.toString());
+    }
 }
 
 /// *************** Private section ****************
@@ -122,6 +122,12 @@ void MovementMap::redirectShip(shared_ptr<Ship> ship) {
     }
 }
 
+void MovementMap::redirectShips(vector<shared_ptr<Ship>> ships) {
+    for (shared_ptr<Ship> ship : ships) {
+        redirectShip(ship);
+    }
+}
+
 /// Does this block has conflict
 bool MovementMap::hasConflict(Position& pos) {
     return shipsComingtoPos_[pos].size() >= 2;
@@ -136,11 +142,13 @@ void MovementMap::iterateAndResolveConflicts() {
     while(!allConflicts_.empty()) {
         Position conflictMiddlePos = allConflicts_.front();
         allConflicts_.pop();
+        log::log("conflict: " + conflictMiddlePos.toString());
         resolveConflict(conflictMiddlePos);
     }
 }
 
 void MovementMap::resolveConflict(Position middlePos) {
+    // O -> X <- O
     // If the middle position is empty, we allow the
     // ship with the greatest halite to go to the destination,
     // but don't allow other ships.
@@ -152,9 +160,46 @@ void MovementMap::resolveConflict(Position middlePos) {
         shared_ptr<Ship> maxShip = *maxShipIndex;
         shipsToRedirect.erase(maxShipIndex);
         
-        for (shared_ptr<Ship> ship : shipsToRedirect) {
-            redirectShip(ship);
+        redirectShips(shipsToRedirect);
+    }
+    // O -> O <- O
+    // If the middle position is not empty we allow the middle ship
+    // to choose what to do, that is, we direct all other ships that the middle
+    // ship is not pointing to.
+    // If the middle ship chooses to stay still, then all other ships will have to
+    // redirect.
+    else {
+        shared_ptr<Ship> middleShip = gameMap_->at(middlePos)->ship;
+        vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
+        if(currentDirection(middleShip) == Direction::STILL) {
+            redirectShips(shipsToRedirect);
+        }
+        else {
+            // looking at where the current ship is pointing to
+            Direction middleDir = currentDirection(middleShip);
+            // the ship at the position can move to the middle, if it wants.
+            // that is, it does not have to redirect if it is in the list.
+            Position safeShipPos = gameMap_->destination_position(middlePos, middleDir);
+            for (shared_ptr<Ship> shipToRedirect : shipsToRedirect) {
+                if (shipToRedirect->position != safeShipPos) {
+                    redirectShip(shipToRedirect);
+                }
+            }
         }
     }
+    
+}
 
+/// Initialize allConflicts_ and call resolve all
+void MovementMap::resolveAllConflicts() {
+    // Loop through the shipsComingtoPos_, obtain all conflicts
+    // and keep it in a stack.
+    for (auto kv : shipsComingtoPos_) {
+        Position pos = kv.first;
+        log::log("conflict check at " + pos.toString());
+        if (hasConflict(pos)) {
+            allConflicts_.push(pos);
+        }
+    }
+    iterateAndResolveConflicts();
 }
