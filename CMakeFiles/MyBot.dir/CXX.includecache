@@ -17,11 +17,11 @@ random
 -
 ctime
 -
-
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/command.cpp
-command.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/command.hpp
-iostream
+queue
+-
+stack
+-
+algorithm
 -
 
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/command.hpp
@@ -30,18 +30,6 @@ direction.hpp
 types.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/types.hpp
 string
--
-
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/constants.cpp
-constants.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/constants.hpp
-log.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/log.hpp
-unordered_map
--
-sstream
--
-vector
 -
 
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/constants.hpp
@@ -55,12 +43,6 @@ ostream
 -
 array
 -
-
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/dropoff.cpp
-dropoff.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/dropoff.hpp
-input.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/input.hpp
 
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/dropoff.hpp
 entity.hpp
@@ -118,18 +100,6 @@ iostream
 sstream
 -
 
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/log.cpp
-log.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/log.hpp
-fstream
--
-iostream
--
-vector
--
-chrono
--
-
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/log.hpp
 string
 -
@@ -143,12 +113,6 @@ ship.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/ship.hpp
 dropoff.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/dropoff.hpp
-
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/player.cpp
-player.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/player.hpp
-input.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/input.hpp
 
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/player.hpp
 types.hpp
@@ -171,12 +135,6 @@ direction.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/direction.hpp
 iostream
 -
-
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/ship.cpp
-ship.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/ship.hpp
-input.hpp
-/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/input.hpp
 
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/ship.hpp
 entity.hpp

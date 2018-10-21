@@ -86,6 +86,15 @@ namespace hlt {
             return Direction::STILL;
         }
 
+        Position destination_position(Position pos, Direction dir) {
+            return normalize(pos.directional_offset(dir));
+        }
+
+        bool can_move(std::shared_ptr<Ship> ship) {
+            // return whether ship has halite > gameMap->at(this)->halite / 10;
+            return ship->halite * 10 >= at(ship)->halite;
+        }
+
         void _update();
         static std::unique_ptr<GameMap> _generate();
     };
