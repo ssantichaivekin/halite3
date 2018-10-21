@@ -96,6 +96,6 @@ namespace hlt {
         }
 
         void _update();
-        static std::unique_ptr<GameMap> _generate();
+        static std::shared_ptr<GameMap> _generate();
     };
 }

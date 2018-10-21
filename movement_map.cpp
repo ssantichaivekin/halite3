@@ -1,7 +1,7 @@
 #include "hlt/game.hpp"
 #include "hlt/constants.hpp"
 #include "hlt/log.hpp"
-#include "MovementMap.hpp"
+#include "movement_map.hpp"
 
 #include <random>
 #include <ctime>
@@ -13,7 +13,7 @@ using namespace std;
 using namespace hlt;
 
 /// Change the game map
-void MovementMap::init(unique_ptr<GameMap>& gameMap) {
+void MovementMap::init(shared_ptr<GameMap>& gameMap) {
     gameMap_ = gameMap;
 }
 
@@ -53,9 +53,20 @@ void MovementMap::resolveAllConflicts() {
     iterateAndResolveConflicts();
 }
 
-/// Flush the outputs to Halite game engine
-void MovementMap::flushOutputs() {
+bool MovementMap::isFreeSpace(Position pos) {
+    return shipsComingtoPos_[pos].size() == 0;
+}
 
+/// Flush the outputs to Halite game engine
+void MovementMap::flushOutputs(Game& game) {
+    vector<Command> command_queue;
+    for (auto kv : shipDirectionQueue_) {
+        Position shipPos = kv.first;
+        shared_ptr<Ship> ship = gameMap_->at(shipPos)->ship;
+        Direction dir = currentDirection(ship);
+        command_queue.push_back(ship->move(dir));
+    }
+    game.end_turn(command_queue);
 }
 
 /// *************** Private section ****************

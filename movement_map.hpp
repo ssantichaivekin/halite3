@@ -21,7 +21,7 @@ class MovementMap {
 public:
 
     // Call once every turn
-    void init(unique_ptr<GameMap>& gameMap);
+    void init(shared_ptr<GameMap>& gameMap);
 
     /// Reset everything. Use for new turn.
     void clear();
@@ -39,7 +39,7 @@ public:
     bool isFreeSpace(Position pos);
 
     /// Flush the outputs to Halite game engine
-    void flushOutputs();
+    void flushOutputs(Game& game);
 
 private:
     /// The direction a ship is intending to go
@@ -70,7 +70,7 @@ private:
     /// resolve a conflict at the position middlePos
     void resolveConflict(Position middlePos);
     
-    unique_ptr<GameMap>& gameMap_;
+    shared_ptr<GameMap>& gameMap_;
     unordered_map<Position, vector<shared_ptr<Ship>>> shipsComingtoPos_;
     unordered_map<Position, queue<Direction>> shipDirectionQueue_;
     queue<Position> allConflicts_;

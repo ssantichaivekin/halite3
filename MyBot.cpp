@@ -1,6 +1,7 @@
 #include "hlt/game.hpp"
 #include "hlt/constants.hpp"
 #include "hlt/log.hpp"
+#include "movement_map.cpp"
 
 #include <random>
 #include <ctime>
@@ -16,7 +17,7 @@ using namespace hlt;
 int gameTurn(mt19937 &rng, Game &game) {
     game.update_frame();
     shared_ptr<Player> me = game.me;
-    unique_ptr<GameMap>& game_map = game.game_map;
+    shared_ptr<GameMap>& game_map = game.game_map;
 
     vector<Command> command_queue;
 

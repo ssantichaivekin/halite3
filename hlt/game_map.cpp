@@ -20,8 +20,8 @@ void hlt::GameMap::_update() {
     }
 }
 
-std::unique_ptr<hlt::GameMap> hlt::GameMap::_generate() {
-    std::unique_ptr<hlt::GameMap> map = std::make_unique<GameMap>();
+std::shared_ptr<hlt::GameMap> hlt::GameMap::_generate() {
+    std::shared_ptr<hlt::GameMap> map = std::make_unique<GameMap>();
 
     hlt::get_sstream() >> map->width >> map->height;
 
