@@ -161,9 +161,35 @@ CMakeFiles/MyBot.dir/hlt/ship.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MyBot.dir/hlt/ship.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/ship.cpp -o CMakeFiles/MyBot.dir/hlt/ship.cpp.s
 
+CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.o: CMakeFiles/MyBot.dir/flags.make
+CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.o: my_helpers/movement_map.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.o -c /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/movement_map.cpp
+
+CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/movement_map.cpp > CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.i
+
+CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/movement_map.cpp -o CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.s
+
+CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o: CMakeFiles/MyBot.dir/flags.make
+CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o: my_helpers/navigator.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o -c /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/navigator.cpp
+
+CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/navigator.cpp > CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.i
+
+CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/navigator.cpp -o CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.s
+
 CMakeFiles/MyBot.dir/MyBot.cpp.o: CMakeFiles/MyBot.dir/flags.make
 CMakeFiles/MyBot.dir/MyBot.cpp.o: MyBot.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/MyBot.dir/MyBot.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/MyBot.dir/MyBot.cpp.o"
 	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/MyBot.dir/MyBot.cpp.o -c /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/MyBot.cpp
 
 CMakeFiles/MyBot.dir/MyBot.cpp.i: cmake_force
@@ -184,6 +210,8 @@ MyBot_OBJECTS = \
 "CMakeFiles/MyBot.dir/hlt/log.cpp.o" \
 "CMakeFiles/MyBot.dir/hlt/player.cpp.o" \
 "CMakeFiles/MyBot.dir/hlt/ship.cpp.o" \
+"CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.o" \
+"CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o" \
 "CMakeFiles/MyBot.dir/MyBot.cpp.o"
 
 # External object files for target MyBot
@@ -197,10 +225,12 @@ MyBot: CMakeFiles/MyBot.dir/hlt/game_map.cpp.o
 MyBot: CMakeFiles/MyBot.dir/hlt/log.cpp.o
 MyBot: CMakeFiles/MyBot.dir/hlt/player.cpp.o
 MyBot: CMakeFiles/MyBot.dir/hlt/ship.cpp.o
+MyBot: CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.o
+MyBot: CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o
 MyBot: CMakeFiles/MyBot.dir/MyBot.cpp.o
 MyBot: CMakeFiles/MyBot.dir/build.make
 MyBot: CMakeFiles/MyBot.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable MyBot"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable MyBot"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MyBot.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

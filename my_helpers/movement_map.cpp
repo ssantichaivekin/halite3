@@ -1,10 +1,5 @@
-#include "hlt/game.hpp"
-#include "hlt/constants.hpp"
-#include "hlt/log.hpp"
 #include "movement_map.hpp"
 
-#include <random>
-#include <ctime>
 #include <queue>
 #include <stack>
 #include <algorithm>
@@ -14,7 +9,8 @@ using namespace hlt;
 
 /// *************** Public section ****************
 
-MovementMap::MovementMap(shared_ptr<GameMap>& gameMap) {
+MovementMap::MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me) {
+    me_ = me;
     gameMap_ = gameMap;
     shipsComingtoPos_ = {};
     shipDirectionQueue_ = {};
@@ -23,6 +19,7 @@ MovementMap::MovementMap(shared_ptr<GameMap>& gameMap) {
 }
 
 void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDirs, bool ignoreOpponentFlag) {
+    log::log("Add intent: ship " + to_string(ship->id));
     shipIgnoresOpponent_[ship->position] = ignoreOpponentFlag;
     if (!gameMap_->can_move(ship)) {
         shipDirectionQueue_[ship->position].push(Direction::STILL);
@@ -32,6 +29,10 @@ void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDi
     Position currentPos = ship->position;
     for (Direction dir : preferredDirs) {
         shipDirectionQueue_[ship->position].push(dir);
+    }
+    if (preferredDirs.empty()) {
+        log::log("Preferred direction should not be empty!");
+        preferredDirs.push_back(Direction::STILL);
     }
     Direction mostPreferredDir = preferredDirs[0];
     Position newPos = gameMap_->destination_position(currentPos, mostPreferredDir);
@@ -53,11 +54,15 @@ bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
 
     // Get all the directions
     vector<Command> command_queue;
+    log::log("Real OUT");
     for (auto kv : shipDirectionQueue_) {
         Position shipPos = kv.first;
         shared_ptr<Ship> ship = gameMap_->at(shipPos)->ship;
         Direction dir = currentDirection(ship);
         command_queue.push_back(ship->move(dir));
+        Position nextPos = destinationPos(ship);
+        log::log("ship " + to_string(ship->id) + " position " + ship->position.toString() +
+                 " -> " + nextPos.toString());
     }
 
     // Spawn a ship
@@ -68,10 +73,11 @@ bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
 }
 
 void MovementMap::logTurn(shared_ptr<Player> me) {
+    log::log("log turn");
     for (auto ship_iterator : me->ships) {
         shared_ptr<Ship> ship = ship_iterator.second;
         Position nextPos = destinationPos(ship);
-        log::log("ship position " + ship->position.toString() +
+        log::log("ship " + to_string(ship->id) + " position " + ship->position.toString() +
                  " -> " + nextPos.toString());
     }
 }
@@ -114,8 +120,10 @@ void MovementMap::changeToNextDirection(shared_ptr<Ship> ship) {
 }
 
 void MovementMap::redirectShip(shared_ptr<Ship> ship) {
+    log::log("ship " + to_string(ship->id) + " redirection:" + ship->position.toString());
     while(hasConflict(ship) && currentDirection(ship) != Direction::STILL) {
         changeToNextDirection(ship);
+        log::log("new direction: " + to_string(currentDirection(ship)));
     }
     if(hasConflict(ship)) {
         allConflicts_.push(ship->position);
@@ -152,7 +160,8 @@ void MovementMap::resolveConflict(Position middlePos) {
     // If the middle position is empty, we allow the
     // ship with the greatest halite to go to the destination,
     // but don't allow other ships.
-    if(gameMap_->at(middlePos)->is_empty()) {
+    MapCell* middleCell = gameMap_->at(middlePos);
+    if(!(middleCell->is_occupied() && middleCell->ship->owner == me_->id) ) {
         // get all the ships pointing here
         vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
         auto maxShipIndex = max_element(shipsToRedirect.begin(), shipsToRedirect.end(),
@@ -169,6 +178,8 @@ void MovementMap::resolveConflict(Position middlePos) {
     // If the middle ship chooses to stay still, then all other ships will have to
     // redirect.
     else {
+        // if it is occupied, then it has a ship.
+        // TODO: but is it our ship...?
         shared_ptr<Ship> middleShip = gameMap_->at(middlePos)->ship;
         vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
         if(currentDirection(middleShip) == Direction::STILL) {

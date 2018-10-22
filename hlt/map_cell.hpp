@@ -32,9 +32,5 @@ namespace hlt {
         void mark_unsafe(std::shared_ptr<Ship>& ship) {
             this->ship = ship;
         }
-
-        bool operator<(const MapCell& other) const{
-            return halite < other.halite;
-        }
     };
 }

@@ -48,6 +48,10 @@ namespace hlt {
         }
 
         std::vector<Direction> get_unsafe_moves(const Position& source, const Position& destination) {
+            if (source == destination) {
+                return { Direction::STILL };
+            }
+            
             const auto& normalized_source = normalize(source);
             const auto& normalized_destination = normalize(destination);
 

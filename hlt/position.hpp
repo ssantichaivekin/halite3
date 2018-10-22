@@ -14,6 +14,9 @@ namespace hlt {
 
         bool operator==(const Position& other) const { return x == other.x && y == other.y; }
         bool operator!=(const Position& other) const { return x != other.x || y != other.y; }
+        Position operator+(const Position& other) const {
+            return Position(x + other.x, y + other.y);
+        }
 
         Position directional_offset(Direction d) const {
             auto dx = 0;

@@ -39,4 +39,20 @@ namespace hlt {
     static std::ostream& operator<<(std::ostream& out, const Direction& direction) {
         return out << static_cast<char>(direction);
     }
+
+    static std::string to_string(const Direction& direction) {
+        switch (direction) {
+            case Direction::NORTH:
+                return "Direction::NORTH";
+            case Direction::SOUTH:
+                return "Direction::SOUTH";
+            case Direction::EAST:
+                return "Direction::EAST";
+            case Direction::WEST:
+                return "Direction::WEST";
+            case Direction::STILL:
+                return "Direction::STILL";
+        }
+        return "Direction INVALID";
+    }
 }

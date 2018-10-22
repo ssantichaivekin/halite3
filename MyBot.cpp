@@ -1,20 +1,53 @@
 #include "hlt/game.hpp"
 #include "hlt/constants.hpp"
 #include "hlt/log.hpp"
-#include "movement_map.cpp"
+#include "my_helpers/movement_map.hpp"
+#include "my_helpers/navigator.hpp"
+#include "my_helpers/tunables.hpp"
 
 #include <random>
 #include <ctime>
 #include <queue>
 #include <stack>
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 using namespace hlt;
 
+enum class ShipStatus {
+    EXPLORE_AND_COLLECT, RETURN
+};
+
+void logShipStatus(shared_ptr<Ship> ship, ShipStatus status) {
+    if (status == ShipStatus::EXPLORE_AND_COLLECT) {
+        log::log("Ship " + ship->position.toString() + " EXPLORE AND COLLECT");
+    }
+    if (status == ShipStatus::RETURN) {
+        log::log("Ship " + ship->position.toString() + " RETURN");
+    }
+}
+
+void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me,
+                 unordered_map<EntityId, ShipStatus>& shipStatus) {
+    // newly created ship
+    if (!shipStatus.count(ship->id)) {
+        shipStatus[ship->id] = ShipStatus::EXPLORE_AND_COLLECT;
+    }
+    // ship that has just reached the shipyard
+    else if (ship->position == me->shipyard->position) {
+        shipStatus[ship->id] = ShipStatus::EXPLORE_AND_COLLECT;
+    }
+    else if (ship->halite >= Tunables::SHIP_CAPACITY) {
+        shipStatus[ship->id] = ShipStatus::RETURN;
+    }
+
+    logShipStatus(ship, shipStatus[ship->id]);
+}
+
 /// Process one turn
 /// You can take at most 2 seconds per turn.
-int gameTurn(mt19937 &rng, Game &game) {
+int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& shipStatus) {
 
     // get input data from game engine
     game.update_frame();
@@ -22,23 +55,46 @@ int gameTurn(mt19937 &rng, Game &game) {
     shared_ptr<GameMap>& game_map = game.game_map;
     // end get input data from game engine
 
-    MovementMap movementMap = MovementMap(game_map);
+    MovementMap movementMap = MovementMap(game_map, me);
+    Navigator navigator = Navigator(game_map, me);
 
     for (const auto& ship_iterator : me->ships) {
         shared_ptr<Ship> ship = ship_iterator.second;
-        if (game_map->can_move(ship) &&
-                 (game_map->at(ship)->halite < constants::MAX_HALITE / 10 || ship->is_full())) {
-            Direction random_direction = ALL_CARDINALS[rng() % 4];
-            movementMap.addIntent(ship, {random_direction});
+
+        adjustState(ship, me, shipStatus);
+        
+        vector<Direction> nextDirs;
+
+        if (shipStatus[ship->id] == ShipStatus::EXPLORE_AND_COLLECT) {
+            if (game_map->at(ship->position)->halite < Tunables::PICKUP_THRESHOLD) {
+                nextDirs = navigator.explore(ship);
+
+                vector<Direction> shuffledDirs = vector<Direction>(ALL_CARDINALS.begin(), ALL_CARDINALS.end());
+                shuffle(shuffledDirs.begin(), shuffledDirs.end(), rng);
+
+                nextDirs.insert(nextDirs.end(), shuffledDirs.begin(), shuffledDirs.end());
+                log::log("ATTEMPT TO MOVE");
+            }
+            else {
+                nextDirs = { Direction::STILL };
+            }
         }
-        else {
-            movementMap.addIntent(ship, {Direction::STILL});
+        else if (shipStatus[ship->id] == ShipStatus::RETURN) {
+            if (game_map->at(ship->position)->halite > Tunables::PICKUP_RETURN_THRESHOLD &&
+                !ship->is_full()) {
+                log::log(to_string(ship->is_full()) + to_string(constants::MAX_HALITE));
+                nextDirs = { Direction::STILL };
+            }
+            else {
+                nextDirs = navigator.dropoffHalite(ship);
+            }
         }
+        movementMap.addIntent(ship, nextDirs);
+
     }
 
-    if (game.turn_number <= 200 &&
-        me->halite >= constants::SHIP_COST &&
-        !game_map->at(me->shipyard)->is_occupied()) {
+    if (game.turn_number <= constants::MAX_TURNS - Tunables::NO_PRODUCTION_TURN_COUNT &&
+        me->halite >= constants::SHIP_COST) {
         movementMap.makeShip();
     }
 
@@ -65,15 +121,19 @@ int main(int argc, char* argv[]) {
     // Initialize an empty game object
     Game game;
 
-    
-    
+    // ********** Initialize my own objects **************
+
+    unordered_map<EntityId, ShipStatus> shipStatus;
+
+    // ***************************************************
+
     // As soon as you call "ready" function below, the 2 second per turn timer will start.
     game.ready("MyCppBot");
     log::log("Successfully created bot! My Player ID is " + to_string(game.my_id) + ". Bot rng seed is " + to_string(rng_seed) + ".");
 
     for (;;) {
         // A turn failure
-        if(gameTurn(rng, game) == false) {
+        if(gameTurn(rng, game, shipStatus) == false) {
             log::log("An error occured when ending the turn; most likely timeout.");
         }
     }
