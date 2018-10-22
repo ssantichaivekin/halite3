@@ -1,4 +1,5 @@
 #include "navigator.hpp"
+#include "tunables.hpp"
 
 #include <algorithm>
 
@@ -14,8 +15,8 @@ Navigator::Navigator(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me) {
 vector<Direction> Navigator::explore(shared_ptr<Ship> ship) {
     Position currentPos = ship->position;
     vector<Position> newPosList;
-    for(int xDiff = -3; xDiff <= 3; xDiff++) {
-        for(int yDiff = -3; yDiff <= 3; yDiff++) {
+    for(int xDiff = -Tunables::SHIP_LOOKS_AHEAD; xDiff <= Tunables::SHIP_LOOKS_AHEAD; xDiff++) {
+        for(int yDiff = -Tunables::SHIP_LOOKS_AHEAD; yDiff <= Tunables::SHIP_LOOKS_AHEAD; yDiff++) {
             Position newPos = currentPos + Position(xDiff, yDiff);
             gameMap_->normalize(newPos);
             newPosList.push_back(newPos);

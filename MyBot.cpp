@@ -45,6 +45,15 @@ void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me,
     logShipStatus(ship, shipStatus[ship->id]);
 }
 
+int calculateCurrentPickUpThreshold(Game& game) {
+    double turnRatio = (double)game.turn_number / constants::MAX_TURNS;
+    int start = Tunables::PICKUP_THRESHOLD_START;
+    int end = Tunables::PICKUP_THRESHOLD_END;
+    int diff = start - end;
+    int pickup_threshold = start - int(turnRatio * diff);
+    return pickup_threshold;
+}
+
 /// Process one turn
 /// You can take at most 2 seconds per turn.
 int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& shipStatus) {
@@ -66,7 +75,8 @@ int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& ship
         vector<Direction> nextDirs;
 
         if (shipStatus[ship->id] == ShipStatus::EXPLORE_AND_COLLECT) {
-            if (game_map->at(ship->position)->halite < Tunables::PICKUP_THRESHOLD) {
+            int pickupThreshold = calculateCurrentPickUpThreshold(game);
+            if (game_map->at(ship->position)->halite < pickupThreshold) {
                 nextDirs = navigator.explore(ship);
 
                 vector<Direction> shuffledDirs = vector<Direction>(ALL_CARDINALS.begin(), ALL_CARDINALS.end());
@@ -80,7 +90,7 @@ int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& ship
             }
         }
         else if (shipStatus[ship->id] == ShipStatus::RETURN) {
-            if (game_map->at(ship->position)->halite > Tunables::PICKUP_RETURN_THRESHOLD &&
+            if (game_map->at(ship->position)->halite >= Tunables::PICKUP_RETURN_THRESHOLD &&
                 !ship->is_full()) {
                 log::log(to_string(ship->is_full()) + to_string(constants::MAX_HALITE));
                 nextDirs = { Direction::STILL };
