@@ -4,6 +4,7 @@
 #include "my_helpers/movement_map.hpp"
 #include "my_helpers/navigator.hpp"
 #include "my_helpers/tunables.hpp"
+#include "my_helpers/shipStatus.hpp"
 
 #include <random>
 #include <ctime>
@@ -15,36 +16,6 @@
 using namespace std;
 using namespace hlt;
 
-enum class ShipStatus {
-    EXPLORE_AND_COLLECT, RETURN
-};
-
-void logShipStatus(shared_ptr<Ship> ship, ShipStatus status) {
-    if (status == ShipStatus::EXPLORE_AND_COLLECT) {
-        log::log("Ship " + ship->position.toString() + " EXPLORE AND COLLECT");
-    }
-    if (status == ShipStatus::RETURN) {
-        log::log("Ship " + ship->position.toString() + " RETURN");
-    }
-}
-
-void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me,
-                 unordered_map<EntityId, ShipStatus>& shipStatus) {
-    // newly created ship
-    if (!shipStatus.count(ship->id)) {
-        shipStatus[ship->id] = ShipStatus::EXPLORE_AND_COLLECT;
-    }
-    // ship that has just reached the shipyard
-    else if (ship->position == me->shipyard->position) {
-        shipStatus[ship->id] = ShipStatus::EXPLORE_AND_COLLECT;
-    }
-    else if (ship->halite >= Tunables::SHIP_CAPACITY) {
-        shipStatus[ship->id] = ShipStatus::RETURN;
-    }
-
-    logShipStatus(ship, shipStatus[ship->id]);
-}
-
 int calculateCurrentPickUpThreshold(Game& game) {
     double turnRatio = (double)game.turn_number / constants::MAX_TURNS;
     int start = Tunables::PICKUP_THRESHOLD_START;
@@ -52,6 +23,77 @@ int calculateCurrentPickUpThreshold(Game& game) {
     int diff = start - end;
     int pickup_threshold = start - int(turnRatio * diff);
     return pickup_threshold;
+}
+
+int calculateCurrentShipCapacity(Game& game) {
+    double turnRatio = (double)game.turn_number / constants::MAX_TURNS;
+    int start = Tunables::SHIP_CAPACITY_START;
+    int end = Tunables::SHIP_CAPACITY_END;
+    int diff = start - end;
+    int shipCapacity = start - int(turnRatio * diff);
+    return shipCapacity;
+}
+
+void logShipStatus(shared_ptr<Ship> ship, ShipStatus status) {
+    if (status == ShipStatus::NEW) {
+        log::log("Ship " + ship->position.toString() + " NEW");
+    }
+    if (status == ShipStatus::EXPLORE) {
+        log::log("Ship " + ship->position.toString() + " EXPLORE");
+    }
+    else if (status == ShipStatus::RETURN) {
+        log::log("Ship " + ship->position.toString() + " RETURN");
+    }
+    else {
+        log::log("Ship " + ship->position.toString() + " COLLECT");
+    }
+}
+
+void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me, Game &game, shared_ptr<GameMap>& game_map,
+                 unordered_map<EntityId, ShipStatus>& shipStatus) {
+    // newly created ship
+    if (!shipStatus.count(ship->id)) {
+        shipStatus[ship->id] = ShipStatus::NEW;
+    }
+
+    if (ship->position == me->shipyard->position) {
+        shipStatus[ship->id] = ShipStatus::NEW;
+    }
+
+    if (shipStatus[ship->id] == ShipStatus::NEW and 
+        !game_map->at(ship->position)->has_structure()) {
+        shipStatus[ship->id] = ShipStatus::EXPLORE;
+    }
+
+    if (shipStatus[ship->id] == ShipStatus::EXPLORE) {
+        if (game_map->at(ship->position)->halite >= calculateCurrentPickUpThreshold(game) and
+             not ship->is_full()) {
+            shipStatus[ship->id] = ShipStatus::COLLECT;
+        }
+        else if (ship->halite >= calculateCurrentShipCapacity(game)) {
+            shipStatus[ship->id] = ShipStatus::RETURN;
+        }
+    }
+    if (shipStatus[ship->id] == ShipStatus::COLLECT) {
+        if (game_map->at(ship->position)->halite >= calculateCurrentPickUpThreshold(game) and
+             not ship->is_full()) {
+            shipStatus[ship->id] = ShipStatus::COLLECT;
+        }
+        else if (ship->halite >= calculateCurrentShipCapacity(game)) {
+            shipStatus[ship->id] = ShipStatus::RETURN;
+        }
+        else {
+            shipStatus[ship->id] = ShipStatus::EXPLORE;
+        }
+    }
+    if (shipStatus[ship->id] == ShipStatus::RETURN) {
+        if (game_map->at(ship->position)->halite >= calculateCurrentPickUpThreshold(game) and
+             not ship->is_full()) {
+            shipStatus[ship->id] = ShipStatus::COLLECT;
+        }
+    }
+
+    logShipStatus(ship, shipStatus[ship->id]);
 }
 
 /// Process one turn
@@ -65,39 +107,29 @@ int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& ship
     // end get input data from game engine
 
     MovementMap movementMap = MovementMap(game_map, me);
-    Navigator navigator = Navigator(game_map, me);
+    Navigator navigator = Navigator(game_map, me, shipStatus, rng);
 
     for (const auto& ship_iterator : me->ships) {
         shared_ptr<Ship> ship = ship_iterator.second;
+        adjustState(ship, me, game, game_map, shipStatus);
+    }
 
-        adjustState(ship, me, shipStatus);
-        
+    for (const auto& ship_iterator : me->ships) {
+        shared_ptr<Ship> ship = ship_iterator.second;
         vector<Direction> nextDirs;
 
-        if (shipStatus[ship->id] == ShipStatus::EXPLORE_AND_COLLECT) {
-            int pickupThreshold = calculateCurrentPickUpThreshold(game);
-            if (game_map->at(ship->position)->halite < pickupThreshold) {
-                nextDirs = navigator.explore(ship);
-
-                vector<Direction> shuffledDirs = vector<Direction>(ALL_CARDINALS.begin(), ALL_CARDINALS.end());
-                shuffle(shuffledDirs.begin(), shuffledDirs.end(), rng);
-
-                nextDirs.insert(nextDirs.end(), shuffledDirs.begin(), shuffledDirs.end());
-                log::log("ATTEMPT TO MOVE");
-            }
-            else {
-                nextDirs = { Direction::STILL };
-            }
+        if (shipStatus[ship->id] == ShipStatus::NEW) {
+            nextDirs = navigator.newShip(ship);
+        }
+        else if (shipStatus[ship->id] == ShipStatus::EXPLORE) {
+            nextDirs = navigator.explore(ship);
+            log::log("ATTEMPT TO MOVE");
+        }
+        else if (shipStatus[ship->id] == ShipStatus::COLLECT) {
+            nextDirs = navigator.collect(ship);
         }
         else if (shipStatus[ship->id] == ShipStatus::RETURN) {
-            if (game_map->at(ship->position)->halite >= Tunables::PICKUP_RETURN_THRESHOLD &&
-                !ship->is_full()) {
-                log::log(to_string(ship->is_full()) + to_string(constants::MAX_HALITE));
-                nextDirs = { Direction::STILL };
-            }
-            else {
-                nextDirs = navigator.dropoffHalite(ship);
-            }
+            nextDirs = navigator.dropoffHalite(ship);
         }
         movementMap.addIntent(ship, nextDirs);
 

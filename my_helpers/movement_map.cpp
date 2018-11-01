@@ -19,7 +19,7 @@ MovementMap::MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me) {
 }
 
 void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDirs, bool ignoreOpponentFlag) {
-    log::log("Add intent: ship " + to_string(ship->id));
+    //log::log("Add intent: ship " + to_string(ship->id));
     shipIgnoresOpponent_[ship->position] = ignoreOpponentFlag;
     if (!gameMap_->can_move(ship)) {
         shipDirectionQueue_[ship->position].push(Direction::STILL);
@@ -31,7 +31,7 @@ void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDi
         shipDirectionQueue_[ship->position].push(dir);
     }
     if (preferredDirs.empty()) {
-        log::log("Preferred direction should not be empty!");
+        //log::log("Preferred direction should not be empty!");
         preferredDirs.push_back(Direction::STILL);
     }
     Direction mostPreferredDir = preferredDirs[0];
@@ -54,15 +54,15 @@ bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
 
     // Get all the directions
     vector<Command> command_queue;
-    log::log("Real OUT");
+    //log::log("Real OUT");
     for (auto kv : shipDirectionQueue_) {
         Position shipPos = kv.first;
         shared_ptr<Ship> ship = gameMap_->at(shipPos)->ship;
         Direction dir = currentDirection(ship);
         command_queue.push_back(ship->move(dir));
-        Position nextPos = destinationPos(ship);
-        log::log("ship " + to_string(ship->id) + " position " + ship->position.toString() +
-                 " -> " + nextPos.toString());
+        //Position nextPos = destinationPos(ship);
+        //log::log("ship " + to_string(ship->id) + " position " + ship->position.toString() +
+        //         " -> " + nextPos.toString());
     }
 
     // Spawn a ship
@@ -73,12 +73,12 @@ bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
 }
 
 void MovementMap::logTurn(shared_ptr<Player> me) {
-    log::log("log turn");
+    //log::log("log turn");
     for (auto ship_iterator : me->ships) {
         shared_ptr<Ship> ship = ship_iterator.second;
-        Position nextPos = destinationPos(ship);
-        log::log("ship " + to_string(ship->id) + " position " + ship->position.toString() +
-                 " -> " + nextPos.toString());
+        //Position nextPos = destinationPos(ship);
+        //log::log("ship " + to_string(ship->id) + " position " + ship->position.toString() +
+        //        " -> " + nextPos.toString());
     }
 }
 
@@ -120,10 +120,10 @@ void MovementMap::changeToNextDirection(shared_ptr<Ship> ship) {
 }
 
 void MovementMap::redirectShip(shared_ptr<Ship> ship) {
-    log::log("ship " + to_string(ship->id) + " redirection:" + ship->position.toString());
+    //log::log("ship " + to_string(ship->id) + " redirection:" + ship->position.toString());
     while(hasConflict(ship) && currentDirection(ship) != Direction::STILL) {
         changeToNextDirection(ship);
-        log::log("new direction: " + to_string(currentDirection(ship)));
+        //log::log("new direction: " + to_string(currentDirection(ship)));
     }
     if(hasConflict(ship)) {
         allConflicts_.push(ship->position);
@@ -150,7 +150,7 @@ void MovementMap::iterateAndResolveConflicts() {
     while(!allConflicts_.empty()) {
         Position conflictMiddlePos = allConflicts_.front();
         allConflicts_.pop();
-        log::log("conflict: " + conflictMiddlePos.toString());
+        //log::log("conflict: " + conflictMiddlePos.toString());
         resolveConflict(conflictMiddlePos);
     }
 }
@@ -207,7 +207,7 @@ void MovementMap::resolveAllConflicts() {
     // and keep it in a stack.
     for (auto kv : shipsComingtoPos_) {
         Position pos = kv.first;
-        log::log("conflict check at " + pos.toString());
+        //log::log("conflict check at " + pos.toString());
         if (hasConflict(pos)) {
             allConflicts_.push(pos);
         }

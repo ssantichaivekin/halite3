@@ -19,6 +19,8 @@ my_helpers/navigator.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/navigator.hpp
 my_helpers/tunables.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/tunables.hpp
+my_helpers/shipStatus.hpp
+/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/shipStatus.hpp
 random
 -
 ctime
@@ -136,6 +138,18 @@ stack
 algorithm
 -
 
+/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/navigator.cpp
+navigator.hpp
+/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/navigator.hpp
+tunables.hpp
+/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/tunables.hpp
+shipStatus.hpp
+/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/shipStatus.hpp
+algorithm
+-
+cassert
+-
+
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/navigator.hpp
 hlt/types.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/hlt/types.hpp
@@ -149,6 +163,12 @@ hlt/game.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/hlt/game.hpp
 hlt/constants.hpp
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/hlt/constants.hpp
+shipStatus.hpp
+/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/shipStatus.hpp
+random
+-
+
+/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/shipStatus.hpp
 
 /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/tunables.hpp
 
@@ -184,8 +204,52 @@ hlt/types.hpp
 position.hpp
 hlt/position.hpp
 
+hlt/game.hpp
+game_map.hpp
+hlt/game_map.hpp
+player.hpp
+hlt/player.hpp
+types.hpp
+hlt/types.hpp
+vector
+-
+iostream
+-
+
+hlt/game_map.hpp
+types.hpp
+hlt/types.hpp
+map_cell.hpp
+hlt/map_cell.hpp
+vector
+-
+
 hlt/log.hpp
 string
+-
+
+hlt/map_cell.hpp
+types.hpp
+hlt/types.hpp
+position.hpp
+hlt/position.hpp
+ship.hpp
+hlt/ship.hpp
+dropoff.hpp
+hlt/dropoff.hpp
+
+hlt/player.hpp
+types.hpp
+hlt/types.hpp
+shipyard.hpp
+hlt/shipyard.hpp
+ship.hpp
+hlt/ship.hpp
+dropoff.hpp
+hlt/dropoff.hpp
+memory
+-
+unordered_map
 -
 
 hlt/position.hpp
@@ -205,6 +269,12 @@ command.hpp
 hlt/command.hpp
 memory
 -
+
+hlt/shipyard.hpp
+entity.hpp
+hlt/entity.hpp
+command.hpp
+hlt/command.hpp
 
 hlt/types.hpp
 
