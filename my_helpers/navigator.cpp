@@ -58,7 +58,7 @@ int Navigator::calculateNavigateThreshold() {
             }
         }
     }
-    int maxThreshold = maxHalite / 3;
+    int maxThreshold = maxHalite / 2;
     return maxThreshold;
 }
 
