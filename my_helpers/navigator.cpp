@@ -10,7 +10,7 @@ using namespace hlt;
 
 Navigator::LessFavorablePositionCmp::LessFavorablePositionCmp(
     shared_ptr<GameMap> gameMap, Position centerPos, int haliteNavigateThreshold) :
-    gameMap_(gameMap), centerPos_(centerPos), haliteNavigateThreshold_(haliteNavigateThreshold) {};
+    gameMap_(gameMap), centerPos_(centerPos), haliteNavigateThreshold_(haliteNavigateThreshold) {}
 
 int Navigator::LessFavorablePositionCmp::evaluatePosition(Position pos) const {
     return max(0, gameMap_->at(pos)->halite - haliteNavigateThreshold_);
