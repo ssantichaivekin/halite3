@@ -4,8 +4,8 @@ class Tunables {
 public:
     // max ship capacity is 1000, but we don't need to use all the 1000.
     // min: 0, max: 1000
-    static const int SHIP_CAPACITY_START = 700;
-    static const int SHIP_CAPACITY_END = 400;
+    static const int SHIP_CAPACITY_START = 850;
+    static const int SHIP_CAPACITY_END = 500;
 
     // We pick up halite when the halite on block when it is lower than threshold.
     // min: 0, max: 1000
