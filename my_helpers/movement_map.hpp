@@ -73,6 +73,8 @@ private:
     /// Resolve the conflicts at all positions
     /// by changing the intent of ships surrounding those positions.
     void resolveAllConflicts();
+
+    bool hasEnemyShip(Position& pos);
     
     shared_ptr<GameMap> gameMap_;
     shared_ptr<Player> me_;

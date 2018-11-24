@@ -136,9 +136,19 @@ void MovementMap::redirectShips(vector<shared_ptr<Ship>> ships) {
     }
 }
 
+bool MovementMap::hasEnemyShip(Position& pos) {
+    if (gameMap_->at(pos)->is_occupied()) {
+        shared_ptr<Ship> ship = gameMap_->at(pos)->ship;
+        if (ship->owner != me_->id) {
+            return true;
+        }
+    }
+    else return false;
+}
+
 /// Does this block has conflict
 bool MovementMap::hasConflict(Position& pos) {
-    return shipsComingtoPos_[pos].size() >= 2;
+    return (shipsComingtoPos_[pos].size() >= 2) or hasEnemyShip(pos);
 }
 
 bool MovementMap::hasConflict(shared_ptr<Ship> ship) {
