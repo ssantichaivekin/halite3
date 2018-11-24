@@ -18,19 +18,11 @@
 using namespace std;
 using namespace hlt;
 
-int calculateCurrentPickUpThreshold(Game& game) {
-    double turnRatio = (double)game.turn_number / constants::MAX_TURNS;
-    int start = Tunables::PICKUP_THRESHOLD_START;
-    int end = Tunables::PICKUP_THRESHOLD_END;
-    int diff = start - end;
-    int pickup_threshold = start - int(turnRatio * diff);
-    return pickup_threshold;
-}
-
 int calculateCurrentShipCapacity(Game& game) {
+    Tunables tunables;
     double turnRatio = (double)game.turn_number / constants::MAX_TURNS;
-    int start = Tunables::SHIP_CAPACITY_START;
-    int end = Tunables::SHIP_CAPACITY_END;
+    int start = tunables.lookUpTunable("shipCapStart");
+    int end = tunables.lookUpTunable("shipCapEnd");
     int diff = start - end;
     int shipCapacity = start - int(turnRatio * diff);
     return shipCapacity;
@@ -91,7 +83,7 @@ void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me, Game &game, share
     }
     if (shipStatus[ship->id] == ShipStatus::RETURN) {
         if (game_map->at(ship->position)->halite >= navigator.getPickUpThreshold() and
-             not ship->is_full()) {
+             not ship->halite > 900) {
             shipStatus[ship->id] = ShipStatus::COLLECT;
         }
     }
@@ -137,7 +129,8 @@ int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& ship
 
     }
 
-    if (game.turn_number <= constants::MAX_TURNS - Tunables::NO_PRODUCTION_TURN_COUNT &&
+    Tunables tunables;
+    if (game.turn_number <= constants::MAX_TURNS - tunables.lookUpTunable("noProdTurn") &&
         me->halite >= constants::SHIP_COST) {
         movementMap.makeShip();
     }

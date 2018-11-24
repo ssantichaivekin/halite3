@@ -18,15 +18,15 @@ Tunables::Tunables(std::string &pathToFolder, int playerNum, int mapSize, int ha
     playerNumKey_ = -1;
     mapSizeKey_ = -1;
     haltieAbundanceKey_ = -1;
-    for (int i = 0; i < playerNums.size(); i++) {
+    for (unsigned int i = 0; i < playerNums.size(); i++) {
         if (playerNums[i] == playerNum)
             playerNumKey_ = i;
     }
-    for (int i = 0; i < mapSizes.size(); i++) {
+    for (unsigned int i = 0; i < mapSizes.size(); i++) {
         if (mapSizes[i] == mapSize)
             mapSizeKey_ = i;
     }
-    for (int i = 0; i < haliteAs.size(); i++) {
+    for (unsigned int i = 0; i < haliteAs.size(); i++) {
         if (haliteAs[i] == haliteAbundance)
             haltieAbundanceKey_ = i;
     }
@@ -41,9 +41,9 @@ Tunables::Tunables(std::string &pathToFolder, int playerNum, int mapSize, int ha
 void Tunables::readAllCsv(std::string &pathToFolder) {
     std::string startpath = pathToFolder + "/csv";
 
-    for (int p = 0; p < playerNums.size(); p++) {
-        for (int s = 0; s < mapSizes.size(); s++) {
-            for (int h = 0; h < haliteAs.size(); h++) {
+    for (unsigned int p = 0; p < playerNums.size(); p++) {
+        for (unsigned int s = 0; s < mapSizes.size(); s++) {
+            for (unsigned int h = 0; h < haliteAs.size(); h++) {
                 std::string path = startpath + '/' + std::to_string(playerNums[p]) + '-' +
                                     std::to_string(mapSizes[s]) + '-' + std::to_string(haliteAs[h]) +
                                     ".csv";

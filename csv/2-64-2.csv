@@ -1,6 +1,8 @@
 name,val,mut,min,max,type,remark
-hltCorr0,1.1,0.05,1,2,float,positional halite evaluation correction
+hltCorr0,1,0.05,1,2,float,positional halite evaluation correction
 hltCorr1,5,0.2,1,10,int,positional halite evaluation correction
-hltOkayT,0.5,0.05,0.1,0.9,float,halite ratio that is considered okay for going out and collecting
-navPercent,0.7,0.05,0.1,0.9,float,Halite potential ratio considered to be okay for navigation
+navPercent,0.4,0.05,0.1,0.9,float,Halite potential ratio considered to be okay for navigation
 colPrecent,3,0.2,0.3,4,float,Halite collection ratio as a function of potential
+noProdTurn,160,10,100,350,int,The number of turn left whenwe stop producing ships
+shipCapStart,950,20,500,980,int,Ship capacity when the game starts
+shipCapEnd,700,20,100,980,int,Ship capacity when the game ends

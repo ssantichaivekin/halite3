@@ -39,7 +39,7 @@ private:
     double halitePotentialNavigateThreshold_;
     // what is the lowest halite I should still consider going to collect
     int lowestHaliteToCollect_;
-    
+
     mt19937 rng_;
 
     struct PositionHasLessHaliteCmp
@@ -104,8 +104,8 @@ private:
         bool noValidPosition(vector<Position> posList) const;
 
         bool operator()(const Position& a, const Position& b) const {
-            int valA = evaluatePosition(a);
-            int valB = evaluatePosition(b);
+            double valA = evaluatePosition(a);
+            double valB = evaluatePosition(b);
             return valA < valB;
         }
     };
@@ -113,7 +113,6 @@ private:
     vector<Direction> wiggleDirectionsMostHalite(shared_ptr<Ship> ship);
     bool confusedExploringShipNearby(shared_ptr<Ship> ship);
     vector<Position> getSurroundingPositions(Position middlePos, int lookAhead);
-    int calculateNavigateThreshold();
 
     double calculateMaxHalitePotential();
     double calculateHalitePotentialNavigateThreshold(double maxHalitePotential);
