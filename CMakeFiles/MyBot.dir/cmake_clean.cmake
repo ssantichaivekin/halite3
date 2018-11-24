@@ -9,6 +9,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/MyBot.dir/hlt/ship.cpp.o"
   "CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.o"
   "CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o"
+  "CMakeFiles/MyBot.dir/my_helpers/tunables.cpp.o"
   "CMakeFiles/MyBot.dir/MyBot.cpp.o"
   "MyBot.pdb"
   "MyBot"

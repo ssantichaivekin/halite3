@@ -9,16 +9,23 @@ using namespace std;
 using namespace hlt;
 
 Navigator::LessFavorablePositionCmp::LessFavorablePositionCmp(
-    shared_ptr<GameMap> gameMap, Position centerPos, int haliteNavigateThreshold) :
-    gameMap_(gameMap), centerPos_(centerPos), haliteNavigateThreshold_(haliteNavigateThreshold) {}
+    shared_ptr<GameMap> gameMap, Position centerPos, Position shipPos, double halitePotentialNavigateThreshold) :
+    gameMap_(gameMap), centerPos_(centerPos), shipPos_(shipPos),
+    halitePotentialNavigateThreshold_(halitePotentialNavigateThreshold) {}
 
-int Navigator::LessFavorablePositionCmp::evaluatePosition(Position pos) const {
-    return max(0, gameMap_->at(pos)->halite - haliteNavigateThreshold_);
+double Navigator::LessFavorablePositionCmp::evaluatePosition(Position pos) const {
+    Tunables tunables;
+    int distHome = gameMap_->calculate_distance(centerPos_, pos);
+    int distCollect = gameMap_->calculate_distance(shipPos_, pos);
+    int dist = distHome + distCollect;
+    int halite = gameMap_->at(pos)->halite;
+    double potential = (halite / (dist * tunables.lookUpTunable("hltCorr0") + tunables.lookUpTunable("hltCorr1")));
+    return max(0.0, potential - halitePotentialNavigateThreshold_);
 }
 
 bool Navigator::LessFavorablePositionCmp::noValidPosition(vector<Position> posList) const {
     for (Position pos : posList) {
-        if (evaluatePosition(pos) != 0)
+        if (evaluatePosition(pos) > 0.1)
             return false;
     }
     return true;
@@ -39,10 +46,43 @@ vector<Position> Navigator::getSurroundingPositions(Position middlePos, int look
 Navigator::Navigator(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, 
                      unordered_map<EntityId, ShipStatus>& shipStatus, mt19937& rng) :
     gameMap_(gameMap), me_(me), shipStatus_(shipStatus), rng_(rng) {
-        haliteNavigateThreshold_ = calculateNavigateThreshold();
+        maxHalitePotential_ = calculateMaxHalitePotential();
+        log::log("Max Halite Potential " + std::to_string(maxHalitePotential_));
+        halitePotentialNavigateThreshold_ = calculateHalitePotentialNavigateThreshold(maxHalitePotential_);
+        Tunables tunables;
+        lowestHaliteToCollect_ = maxHalitePotential_ * tunables.lookUpTunable("colPrecent");
+        log::log("Low Halite Collection " + std::to_string(lowestHaliteToCollect_));  
     }
 
+double Navigator::calculateMaxHalitePotential() {
+    Tunables tunables;
+    Position shipyard = me_->shipyard->position;
+    int size = gameMap_->width;
+    double maxPotential = 1;
+    for(int x = 0; x < size; x++) {
+        for(int y = 0; y < size; y++) {
+            Position pos = Position(x, y);
+            int dist = gameMap_->calculate_distance(shipyard, pos);
+            int halite = gameMap_->at(pos)->halite;
+            double potential = (halite / (2 * dist * tunables.lookUpTunable("hltCorr0") + tunables.lookUpTunable("hltCorr1")));
+            if (potential > maxPotential) {
+                log::log(std::to_string(potential));
+                log::log("halite " + std::to_string(halite));
+                log::log("dist " + std::to_string(dist));
+                maxPotential = potential;
+            }
+        }
+    }
+    return maxPotential;
+}
+
+double Navigator::calculateHalitePotentialNavigateThreshold(double maxHalitePotential) {
+    Tunables tunables;
+    return maxHalitePotential * tunables.lookUpTunable("navPercent");
+}
+
 int Navigator::calculateNavigateThreshold() {
+    Tunables tunables;
     Position shipyard = me_->shipyard->position;
     int size = gameMap_->width;
     int maxHalite = 10;
@@ -52,31 +92,39 @@ int Navigator::calculateNavigateThreshold() {
             Position pos = Position(x, y);
             int dist = gameMap_->calculate_distance(shipyard, pos);
             int halite = gameMap_->at(pos)->halite;
-            int posVal = (halite / (dist + 5));
+            int posVal = (halite / (dist * tunables.lookUpTunable("hltCorr")));
             if (posVal > maxVal) {
                 maxHalite = halite;
+                maxVal = posVal;
             }
         }
     }
-    int maxThreshold = maxHalite / 2;
+    int maxThreshold = maxHalite * tunables.lookUpTunable("hltOkayT");
     return maxThreshold;
 }
 
 vector<Direction> Navigator::explore(shared_ptr<Ship> ship) {
 
-    Position middlePos = ship->position;
-    LessFavorablePositionCmp posFavCmp = LessFavorablePositionCmp(gameMap_, middlePos, haliteNavigateThreshold_);
+    Position homePos = me_->shipyard->position;
+    Position shipPos = ship->position;
+    LessFavorablePositionCmp posFavCmp = LessFavorablePositionCmp(gameMap_, homePos, shipPos, halitePotentialNavigateThreshold_);
     DirectionHasGreaterHaliteCmp directionHasGreaterHaliteCmp = DirectionHasGreaterHaliteCmp(gameMap_, ship);
 
     int shipLookAhead = Tunables::SHIP_LOOKS_AHEAD;
-    vector<Position> posList = getSurroundingPositions(middlePos, shipLookAhead);
+    vector<Position> posList = getSurroundingPositions(shipPos, shipLookAhead);
     while (posFavCmp.noValidPosition(posList)) {
         shipLookAhead *= 2;
-        posList = getSurroundingPositions(middlePos, shipLookAhead);
+        log::log("Ship " + ship->position.toString() + std::to_string(shipLookAhead));
+        posList = getSurroundingPositions(shipPos, shipLookAhead);
+
+        if (shipLookAhead >= gameMap_->width) {
+            vector<Direction> wiggleDirs = wiggleDirectionsMostHalite(ship);
+            return wiggleDirs;
+        }
     }
 
     Position maxPos = *max_element(posList.begin(), posList.end(), posFavCmp);
-    vector<Direction> targetDirs = gameMap_->get_unsafe_moves(ship->position, maxPos);
+    vector<Direction> targetDirs = gameMap_->get_unsafe_moves(shipPos, maxPos);
     sort(targetDirs.begin(), targetDirs.end(), directionHasGreaterHaliteCmp);
 
     // add some wiggle

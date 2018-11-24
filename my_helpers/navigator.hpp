@@ -25,13 +25,21 @@ public:
     vector<Direction> collect(shared_ptr<Ship> ship);
     vector<Direction> dropoffHalite(shared_ptr<Ship> ship);
     vector<Direction> newShip(shared_ptr<Ship> ship);
+    int getPickUpThreshold() { return lowestHaliteToCollect_; }
 
 private:
     shared_ptr<GameMap> gameMap_;
     shared_ptr<Player> me_;
     vector<vector<Halite>> bestReturnRoute_;
     unordered_map<EntityId, ShipStatus>& shipStatus_;
-    int haliteNavigateThreshold_;
+
+    // what is the highest halite potential (halite/turn) in this map
+    double maxHalitePotential_;
+    // what is the lowest potential I should still consider going to navigate to
+    double halitePotentialNavigateThreshold_;
+    // what is the lowest halite I should still consider going to collect
+    int lowestHaliteToCollect_;
+    
     mt19937 rng_;
 
     struct PositionHasLessHaliteCmp
@@ -82,15 +90,17 @@ private:
     struct LessFavorablePositionCmp
     {
         LessFavorablePositionCmp(shared_ptr<GameMap> gameMap,
-                                  Position centerPos,
-                                  int haliteNavigateThreshold);
+                                  Position homePos,
+                                  Position shipPos,
+                                  double halitePotentialNavigateThreshold);
 
         shared_ptr<GameMap> gameMap_;
         Position centerPos_;
-        int haliteNavigateThreshold_;
+        Position shipPos_;
+        double halitePotentialNavigateThreshold_;
         vector<pair<Direction, int>> directionalPenalty_;
 
-        int evaluatePosition(Position pos) const;
+        double evaluatePosition(Position pos) const;
         bool noValidPosition(vector<Position> posList) const;
 
         bool operator()(const Position& a, const Position& b) const {
@@ -104,4 +114,9 @@ private:
     bool confusedExploringShipNearby(shared_ptr<Ship> ship);
     vector<Position> getSurroundingPositions(Position middlePos, int lookAhead);
     int calculateNavigateThreshold();
+
+    double calculateMaxHalitePotential();
+    double calculateHalitePotentialNavigateThreshold(double maxHalitePotential);
+    int calculateLowestHaliteToCollect();
+
 };

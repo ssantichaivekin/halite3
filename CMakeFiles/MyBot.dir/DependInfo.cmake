@@ -15,6 +15,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt/ship.cpp" "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles/MyBot.dir/hlt/ship.cpp.o"
   "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/movement_map.cpp" "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles/MyBot.dir/my_helpers/movement_map.cpp.o"
   "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/navigator.cpp" "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o"
+  "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers/tunables.cpp" "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/CMakeFiles/MyBot.dir/my_helpers/tunables.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "Clang")
 

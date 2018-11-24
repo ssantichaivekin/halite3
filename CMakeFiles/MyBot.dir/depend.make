@@ -13,6 +13,7 @@ CMakeFiles/MyBot.dir/MyBot.cpp.o: hlt/position.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: hlt/ship.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: hlt/shipyard.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: hlt/types.hpp
+CMakeFiles/MyBot.dir/MyBot.cpp.o: my_helpers/miscs.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: my_helpers/movement_map.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: my_helpers/navigator.hpp
 CMakeFiles/MyBot.dir/MyBot.cpp.o: my_helpers/shipStatus.hpp
@@ -140,4 +141,7 @@ CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o: hlt/position.hpp
 CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o: hlt/ship.hpp
 CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o: hlt/shipyard.hpp
 CMakeFiles/MyBot.dir/my_helpers/navigator.cpp.o: hlt/types.hpp
+
+CMakeFiles/MyBot.dir/my_helpers/tunables.cpp.o: my_helpers/tunables.cpp
+CMakeFiles/MyBot.dir/my_helpers/tunables.cpp.o: my_helpers/tunables.hpp
 

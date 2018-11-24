@@ -5,6 +5,7 @@
 #include "my_helpers/navigator.hpp"
 #include "my_helpers/tunables.hpp"
 #include "my_helpers/shipStatus.hpp"
+#include "my_helpers/miscs.hpp"
 
 #include <random>
 #include <ctime>
@@ -12,6 +13,7 @@
 #include <stack>
 #include <algorithm>
 #include <unordered_map>
+#include <string>
 
 using namespace std;
 using namespace hlt;
@@ -38,7 +40,7 @@ void logShipStatus(shared_ptr<Ship> ship, ShipStatus status) {
     if (status == ShipStatus::NEW) {
         log::log("Ship " + ship->position.toString() + " NEW");
     }
-    if (status == ShipStatus::EXPLORE) {
+    else if (status == ShipStatus::EXPLORE) {
         log::log("Ship " + ship->position.toString() + " EXPLORE");
     }
     else if (status == ShipStatus::RETURN) {
@@ -50,8 +52,10 @@ void logShipStatus(shared_ptr<Ship> ship, ShipStatus status) {
 }
 
 void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me, Game &game, shared_ptr<GameMap>& game_map,
-                 unordered_map<EntityId, ShipStatus>& shipStatus) {
+                 unordered_map<EntityId, ShipStatus>& shipStatus, Navigator &navigator) {
     // newly created ship
+    log::log(std::to_string(navigator.getPickUpThreshold()));
+
     if (!shipStatus.count(ship->id)) {
         shipStatus[ship->id] = ShipStatus::NEW;
     }
@@ -60,13 +64,12 @@ void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me, Game &game, share
         shipStatus[ship->id] = ShipStatus::NEW;
     }
 
-    if (shipStatus[ship->id] == ShipStatus::NEW and 
-        !game_map->at(ship->position)->has_structure()) {
+    if (shipStatus[ship->id] == ShipStatus::NEW) {
         shipStatus[ship->id] = ShipStatus::EXPLORE;
     }
 
     if (shipStatus[ship->id] == ShipStatus::EXPLORE) {
-        if (game_map->at(ship->position)->halite >= calculateCurrentPickUpThreshold(game) and
+        if (game_map->at(ship->position)->halite >= navigator.getPickUpThreshold() and
              not ship->is_full()) {
             shipStatus[ship->id] = ShipStatus::COLLECT;
         }
@@ -75,7 +78,7 @@ void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me, Game &game, share
         }
     }
     if (shipStatus[ship->id] == ShipStatus::COLLECT) {
-        if (game_map->at(ship->position)->halite >= calculateCurrentPickUpThreshold(game) and
+        if (game_map->at(ship->position)->halite >= navigator.getPickUpThreshold() and
              not ship->is_full()) {
             shipStatus[ship->id] = ShipStatus::COLLECT;
         }
@@ -87,7 +90,7 @@ void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me, Game &game, share
         }
     }
     if (shipStatus[ship->id] == ShipStatus::RETURN) {
-        if (game_map->at(ship->position)->halite >= calculateCurrentPickUpThreshold(game) and
+        if (game_map->at(ship->position)->halite >= navigator.getPickUpThreshold() and
              not ship->is_full()) {
             shipStatus[ship->id] = ShipStatus::COLLECT;
         }
@@ -111,7 +114,7 @@ int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& ship
 
     for (const auto& ship_iterator : me->ships) {
         shared_ptr<Ship> ship = ship_iterator.second;
-        adjustState(ship, me, game, game_map, shipStatus);
+        adjustState(ship, me, game, game_map, shipStatus, navigator);
     }
 
     for (const auto& ship_iterator : me->ships) {
@@ -123,7 +126,6 @@ int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& ship
         }
         else if (shipStatus[ship->id] == ShipStatus::EXPLORE) {
             nextDirs = navigator.explore(ship);
-            log::log("ATTEMPT TO MOVE");
         }
         else if (shipStatus[ship->id] == ShipStatus::COLLECT) {
             nextDirs = navigator.collect(ship);
@@ -146,9 +148,25 @@ int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& ship
     return result;
 }
 
+int findHaliteAbundanceKey(Game game) {
+    int averageHalite = findAverageHalite(game.game_map);
+    if (averageHalite < 116) {
+        return 0;
+    }
+    else if (averageHalite < 194) {
+        return 1;
+    }
+    else {
+        return 2;
+    }
+}
+
 /// Initialize and run the game loop, passing in all the things that had been initializes
 /// The initialization can take at most 30 seconds.
 int main(int argc, char* argv[]) {
+
+    string s = argv[0];
+    string pathToFolder = s.substr(0, s.find_last_of("\\/"));
 
     // Initialize the random number generator
     unsigned int rng_seed;
@@ -166,6 +184,9 @@ int main(int argc, char* argv[]) {
     // ********** Initialize my own objects **************
 
     unordered_map<EntityId, ShipStatus> shipStatus;
+    int mapWidth = game.game_map->width;
+    int nPlayers = game.players.size();
+    Tunables(pathToFolder, nPlayers, mapWidth, findHaliteAbundanceKey(game));
 
     // ***************************************************
 
