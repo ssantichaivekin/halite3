@@ -82,8 +82,8 @@ void adjustState(shared_ptr<Ship> ship, shared_ptr<Player> me, Game &game, share
         }
     }
     if (shipStatus[ship->id] == ShipStatus::RETURN) {
-        if (game_map->at(ship->position)->halite >= navigator.getPickUpThreshold() and
-             not ship->halite > 900) {
+        if ((game_map->at(ship->position)->halite >= navigator.getPickUpThreshold()) and
+             not (ship->halite > 900)) {
             shipStatus[ship->id] = ShipStatus::COLLECT;
         }
     }
