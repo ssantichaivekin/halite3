@@ -101,7 +101,7 @@ int gameTurn(mt19937 &rng, Game &game, unordered_map<EntityId, ShipStatus>& ship
     shared_ptr<GameMap>& game_map = game.game_map;
     // end get input data from game engine
 
-    MovementMap movementMap = MovementMap(game_map, me);
+    MovementMap movementMap = MovementMap(game_map, me, game.players.size());
     Navigator navigator = Navigator(game_map, me, shipStatus, rng);
 
     for (const auto& ship_iterator : me->ships) {

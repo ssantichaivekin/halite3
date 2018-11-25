@@ -9,8 +9,9 @@ using namespace hlt;
 
 /// *************** Public section ****************
 
-MovementMap::MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me) {
+MovementMap::MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, int nPlayers) {
     me_ = me;
+    nPlayers_ = nPlayers;
     gameMap_ = gameMap;
     shipsComingtoPos_ = {};
     shipDirectionQueue_ = {};
@@ -137,18 +138,21 @@ void MovementMap::redirectShips(vector<shared_ptr<Ship>> ships) {
 }
 
 bool MovementMap::hasEnemyShip(Position& pos) {
-    if (gameMap_->at(pos)->is_occupied()) {
-        shared_ptr<Ship> ship = gameMap_->at(pos)->ship;
-        if (ship->owner != me_->id) {
-            return true;
-        }
+    if (nPlayers_ == 2) {
+        // TODO: we currently don't avoid enemies in 2 players.
+        return false;
+    }
+    MapCell* cell = gameMap_->at(pos);
+    if (cell->is_occupied() && cell->ship->owner != me_->id) {
+        log::log("occupied " + pos.toString());
+        return true;
     }
     else return false;
 }
 
 /// Does this block has conflict
 bool MovementMap::hasConflict(Position& pos) {
-    return (shipsComingtoPos_[pos].size() >= 2) or hasEnemyShip(pos);
+    return (shipsComingtoPos_[pos].size() >= 2) or ((shipsComingtoPos_[pos].size() >= 1) and hasEnemyShip(pos));
 }
 
 bool MovementMap::hasConflict(shared_ptr<Ship> ship) {
@@ -160,18 +164,25 @@ void MovementMap::iterateAndResolveConflicts() {
     while(!allConflicts_.empty()) {
         Position conflictMiddlePos = allConflicts_.front();
         allConflicts_.pop();
-        //log::log("conflict: " + conflictMiddlePos.toString());
+        log::log("conflict: " + conflictMiddlePos.toString());
         resolveConflict(conflictMiddlePos);
     }
 }
 
 void MovementMap::resolveConflict(Position middlePos) {
+    log::log("resolve: " + middlePos.toString());
+    MapCell* middleCell = gameMap_->at(middlePos);
+    // running into an enemy
+    if (middleCell->is_occupied() && middleCell->ship->owner != me_->id) {
+        log::log("detected");
+        vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
+        redirectShips(shipsToRedirect);
+    }
     // O -> X <- O
     // If the middle position is empty, we allow the
     // ship with the greatest halite to go to the destination,
     // but don't allow other ships.
-    MapCell* middleCell = gameMap_->at(middlePos);
-    if(!(middleCell->is_occupied() && middleCell->ship->owner == me_->id) ) {
+    else if(!(middleCell->is_occupied() && middleCell->ship->owner == me_->id) ) {
         // get all the ships pointing here
         vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
         auto maxShipIndex = max_element(shipsToRedirect.begin(), shipsToRedirect.end(),
@@ -189,9 +200,12 @@ void MovementMap::resolveConflict(Position middlePos) {
     // redirect.
     else {
         // if it is occupied, then it has a ship.
-        // TODO: but is it our ship...?
+        // Case : it is not out ship
         shared_ptr<Ship> middleShip = gameMap_->at(middlePos)->ship;
         vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
+        if (middleShip->owner != me_->id) {
+            redirectShips(shipsToRedirect);
+        }
         if(currentDirection(middleShip) == Direction::STILL) {
             redirectShips(shipsToRedirect);
         }

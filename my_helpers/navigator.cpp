@@ -18,7 +18,7 @@ double Navigator::LessFavorablePositionCmp::evaluatePosition(Position pos) const
     int distHome = gameMap_->calculate_distance(centerPos_, pos);
     int distCollect = gameMap_->calculate_distance(shipPos_, pos);
     int dist = distHome + distCollect;
-    int halite = gameMap_->at(pos)->halite;
+    int halite = std::max(gameMap_->at(pos)->halite, 1000);
     double potential = halite / (dist * tunables.lookUpTunable("hltCorr0") + tunables.lookUpTunable("hltCorr1"));
     //log::log(pos.toString() + "      " + std::to_string(potential));
     return max(0.0, potential - halitePotentialNavigateThreshold_);
@@ -126,6 +126,9 @@ vector<Direction> Navigator::dropoffHalite(shared_ptr<Ship> ship) {
     vector<Direction> nextDirs = gameMap_->get_unsafe_moves(ship->position, me_->shipyard->position);
     DirectionHasLessHaliteCmp directionHasLessHaliteCmp = DirectionHasLessHaliteCmp(gameMap_, ship);
     sort(nextDirs.begin(), nextDirs.end(), directionHasLessHaliteCmp);
+    vector<Direction> wiggleDirs = wiggleDirectionsMostHalite(ship);
+    sort(wiggleDirs.begin(), wiggleDirs.end(), directionHasLessHaliteCmp);
+    nextDirs.insert(nextDirs.end(), wiggleDirs.begin(), wiggleDirs.end());
     return nextDirs;
 }
 

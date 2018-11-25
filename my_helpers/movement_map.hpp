@@ -21,7 +21,7 @@ class MovementMap {
 public:
     /// Create a movement map that keeps track of immediate movement and safety.
     /// 
-    MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me);
+    MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, int nPlayers_);
 
     /// Tell the map that the ship is intending to move in the following direction(s)
     /// Adding a direction here implies that the second direction is 
@@ -78,6 +78,7 @@ private:
     
     shared_ptr<GameMap> gameMap_;
     shared_ptr<Player> me_;
+    int nPlayers_;
     unordered_map<Position, vector<shared_ptr<Ship>>> shipsComingtoPos_;
     unordered_map<Position, queue<Direction>> shipDirectionQueue_;
     queue<Position> allConflicts_;
