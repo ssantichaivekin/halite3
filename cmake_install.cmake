@@ -1,4 +1,4 @@
-# Install script for directory: /Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS
+# Install script for directory: /Users/santisantichaivekin/Desktop/code/FA18/halite/Halite3_C++_MacOS
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/santisantichaivekin/Desktop/code/FA18/halite/Halite3_C++_MacOS/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -10,6 +10,7 @@
 #include <queue>
 #include <stack>
 #include <algorithm>
+#include <random>
 
 using namespace std;
 using namespace hlt;
@@ -21,7 +22,7 @@ class MovementMap {
 public:
     /// Create a movement map that keeps track of immediate movement and safety.
     /// 
-    MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, int nPlayers_);
+    MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, int nPlayers_, mt19937& rng, bool collisionCenterOkay);
 
     /// Tell the map that the ship is intending to move in the following direction(s)
     /// Adding a direction here implies that the second direction is 
@@ -30,6 +31,8 @@ public:
 
     /// Only call after resolve all conflicts()
     bool isFreeSpace(Position pos);
+
+    void makeDropoff(shared_ptr<Ship> ship);
 
     /// Create an intention to make ship
     void makeShip();
@@ -74,7 +77,11 @@ private:
     /// by changing the intent of ships surrounding those positions.
     void resolveAllConflicts();
 
+    /// Is there an ememy ship at position
     bool hasEnemyShip(Position& pos);
+
+    /// Is there an enemy ship in the surrounding positions
+    bool hasEnemyPresence(Position& pos);
     
     shared_ptr<GameMap> gameMap_;
     shared_ptr<Player> me_;
@@ -82,7 +89,10 @@ private:
     unordered_map<Position, vector<shared_ptr<Ship>>> shipsComingtoPos_;
     unordered_map<Position, queue<Direction>> shipDirectionQueue_;
     queue<Position> allConflicts_;
+    vector<Command> command_queue_;
+    mt19937& rng_;
 
     unordered_map<Position, bool> shipIgnoresOpponent_;
     bool shouldMakeShip_;
+    bool collisionCenterOkay_;
 };

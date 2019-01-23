@@ -7,7 +7,9 @@
 #include "hlt/game.hpp"
 #include "hlt/constants.hpp"
 #include "shipStatus.hpp"
+
 #include <random>
+#include <set>
 
 using namespace std;
 using namespace hlt;
@@ -16,7 +18,6 @@ using namespace hlt;
 /// It make high level decisions about where to go.
 /// Planning : a navigator will just accept a ship and a mode (say,
 /// explore or return home). -- It will (1) return a direction or
-/// (2) TODO: keep the information and decide as whole?
 class Navigator {
 public:
     Navigator(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, 
@@ -32,6 +33,7 @@ private:
     shared_ptr<Player> me_;
     vector<vector<Halite>> bestReturnRoute_;
     unordered_map<EntityId, ShipStatus>& shipStatus_;
+    set<Position> usedPosiitons_;
 
     // what is the highest halite potential (halite/turn) in this map
     double maxHalitePotential_;
@@ -40,7 +42,7 @@ private:
     // what is the lowest halite I should still consider going to collect
     int lowestHaliteToCollect_;
 
-    mt19937 rng_;
+    mt19937& rng_;
 
     struct PositionHasLessHaliteCmp
     {
@@ -90,12 +92,12 @@ private:
     struct LessFavorablePositionCmp
     {
         LessFavorablePositionCmp(shared_ptr<GameMap> gameMap,
-                                  Position homePos,
+                                  vector<Position> centerPositions,
                                   Position shipPos,
                                   double halitePotentialNavigateThreshold);
 
         shared_ptr<GameMap> gameMap_;
-        Position centerPos_;
+        vector<Position> centerPositions_;
         Position shipPos_;
         double halitePotentialNavigateThreshold_;
         vector<pair<Direction, int>> directionalPenalty_;

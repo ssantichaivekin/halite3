@@ -64,6 +64,10 @@ namespace hlt {
         in >> position.x >> position.y;
         return in;
     }
+
+    static bool operator<(Position a, Position b) {
+        return (a.x < b.x) or (a.x == b.x && a.y < b.y);
+    }
 }
 
 namespace std {

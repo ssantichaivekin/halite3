@@ -6,5 +6,5 @@ CXX_FLAGS =  -g -O2 -Wall -Wno-unused-function -pedantic   -std=c++1z
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/hlt -I/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS/my_helpers -I/Users/santisantichaivekin/Desktop/code/halite/Halite3_C++_MacOS 
+CXX_INCLUDES = -I/Users/santisantichaivekin/Desktop/code/FA18/halite/Halite3_C++_MacOS/hlt -I/Users/santisantichaivekin/Desktop/code/FA18/halite/Halite3_C++_MacOS/my_helpers -I/Users/santisantichaivekin/Desktop/code/FA18/halite/Halite3_C++_MacOS 
 

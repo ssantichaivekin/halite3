@@ -3,13 +3,16 @@
 #include <queue>
 #include <stack>
 #include <algorithm>
+#include <random>
 
 using namespace std;
 using namespace hlt;
 
 /// *************** Public section ****************
 
-MovementMap::MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, int nPlayers) {
+MovementMap::MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, int nPlayers, mt19937& rng,
+    bool collisionCenterOkay) :
+rng_(rng) {
     me_ = me;
     nPlayers_ = nPlayers;
     gameMap_ = gameMap;
@@ -17,6 +20,8 @@ MovementMap::MovementMap(shared_ptr<GameMap>& gameMap, shared_ptr<Player>& me, i
     shipDirectionQueue_ = {};
     allConflicts_ = {};
     shouldMakeShip_ = false;
+    collisionCenterOkay_ = collisionCenterOkay;
+    vector<Command> command_queue_ = {};
 }
 
 void MovementMap::addIntent(shared_ptr<Ship> ship, vector<Direction> preferredDirs, bool ignoreOpponentFlag) {
@@ -44,6 +49,11 @@ bool MovementMap::isFreeSpace(Position pos) {
     return shipsComingtoPos_[pos].size() == 0;
 }
 
+void MovementMap::makeDropoff(shared_ptr<Ship> ship) {
+    command_queue_.push_back(ship->make_dropoff());
+    log::log("Make Dropoff");
+}
+
 void MovementMap::makeShip() {
     shouldMakeShip_ = true;
 }
@@ -54,13 +64,12 @@ bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
     resolveAllConflicts();
 
     // Get all the directions
-    vector<Command> command_queue;
     //log::log("Real OUT");
     for (auto kv : shipDirectionQueue_) {
         Position shipPos = kv.first;
         shared_ptr<Ship> ship = gameMap_->at(shipPos)->ship;
         Direction dir = currentDirection(ship);
-        command_queue.push_back(ship->move(dir));
+        command_queue_.push_back(ship->move(dir));
         //Position nextPos = destinationPos(ship);
         //log::log("ship " + to_string(ship->id) + " position " + ship->position.toString() +
         //         " -> " + nextPos.toString());
@@ -68,9 +77,9 @@ bool MovementMap::processOutputsAndEndTurn(Game& game, shared_ptr<Player> me) {
 
     // Spawn a ship
     if (shouldMakeShip_ && isFreeSpace(me->shipyard->position)) {
-        command_queue.push_back(me->shipyard->spawn());
+        command_queue_.push_back(me->shipyard->spawn());
     }
-    return game.end_turn(command_queue);
+    return game.end_turn(command_queue_);
 }
 
 void MovementMap::logTurn(shared_ptr<Player> me) {
@@ -137,22 +146,68 @@ void MovementMap::redirectShips(vector<shared_ptr<Ship>> ships) {
     }
 }
 
-bool MovementMap::hasEnemyShip(Position& pos) {
-    if (nPlayers_ == 2) {
-        // TODO: we currently don't avoid enemies in 2 players.
-        return false;
+bool MovementMap::hasEnemyPresence(Position& centerPos) {
+    for (Position surroundingPos : centerPos.get_surrounding_cardinals()) {
+        surroundingPos = gameMap_->normalize(surroundingPos);
+        MapCell* surroundingCell = gameMap_->at(surroundingPos);
+        if (surroundingCell->is_occupied() and surroundingCell->ship->owner != me_->id) {
+            log::log("enemy presence at " + centerPos.toString());
+            return true;
+        }
     }
+    return false;
+}
+
+bool MovementMap::hasEnemyShip(Position& pos) {
     MapCell* cell = gameMap_->at(pos);
     if (cell->is_occupied() && cell->ship->owner != me_->id) {
         log::log("occupied " + pos.toString());
         return true;
     }
-    else return false;
+    return false;
 }
 
 /// Does this block has conflict
 bool MovementMap::hasConflict(Position& pos) {
-    return (shipsComingtoPos_[pos].size() >= 2) or ((shipsComingtoPos_[pos].size() >= 1) and hasEnemyShip(pos));
+    if (collisionCenterOkay_) {
+        // allow collision on dropoffs and shipyard
+        vector<Position> homePositions;
+        homePositions.push_back(me_->shipyard->position);
+        for (auto dropoffPair : me_->dropoffs) {
+            homePositions.push_back(dropoffPair.second->position);
+        }
+
+        for (Position homePos : homePositions) {
+            if (homePos == pos) {
+                return false;
+            }
+        }
+    }
+    if (shipsComingtoPos_[pos].size() >= 2) {
+        return true;
+    }
+    // check for enemy conflict
+    if (nPlayers_ == 4) {
+        if (pos != me_->shipyard->position) {
+            if (shipsComingtoPos_[pos].size() >= 1) {
+                if (hasEnemyShip(pos)) {
+                    if (rng_() % 100 > 2) {
+                        return true;
+                    }
+                }
+                // if we already has a ship there, then
+                // it is not a conflict!
+                if (!gameMap_->at(pos)->is_occupied() and hasEnemyPresence(pos)) {
+                    // in this case, we might hit an enemy. To be safe, we will say
+                    // that we will have a 8% chance of not seeing the conflict.
+                    if (rng_() % 100 > 8) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 bool MovementMap::hasConflict(shared_ptr<Ship> ship) {
@@ -178,19 +233,27 @@ void MovementMap::resolveConflict(Position middlePos) {
         vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
         redirectShips(shipsToRedirect);
     }
-    // O -> X <- O
+    
     // If the middle position is empty, we allow the
     // ship with the greatest halite to go to the destination,
     // but don't allow other ships.
-    else if(!(middleCell->is_occupied() && middleCell->ship->owner == me_->id) ) {
-        // get all the ships pointing here
-        vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
-        auto maxShipIndex = max_element(shipsToRedirect.begin(), shipsToRedirect.end(),
-                                        shipHasLessHalite);
-        shared_ptr<Ship> maxShip = *maxShipIndex;
-        shipsToRedirect.erase(maxShipIndex);
-        
-        redirectShips(shipsToRedirect);
+    else if(!middleCell->is_occupied()) {
+        if (hasEnemyPresence(middlePos)) {
+            // avoid enemies case
+            vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
+            redirectShips(shipsToRedirect);
+        }
+        else {
+            // in this case it is O -> X <- O
+            // get all the ships pointing here
+            vector<shared_ptr<Ship>> shipsToRedirect = shipsComingtoPos_[middlePos];
+            auto maxShipIndex = max_element(shipsToRedirect.begin(), shipsToRedirect.end(),
+                                            shipHasLessHalite);
+            shared_ptr<Ship> maxShip = *maxShipIndex;
+            shipsToRedirect.erase(maxShipIndex);
+            
+            redirectShips(shipsToRedirect);
+        }
     }
     // O -> O <- O
     // If the middle position is not empty we allow the middle ship
