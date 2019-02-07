@@ -1,3 +1,0 @@
-/Users/santisantichaivekin/Desktop/code/FA18/halite/Halite3_C++_MacOS/CMakeFiles/rebuild_cache.dir
-/Users/santisantichaivekin/Desktop/code/FA18/halite/Halite3_C++_MacOS/CMakeFiles/edit_cache.dir
-/Users/santisantichaivekin/Desktop/code/FA18/halite/Halite3_C++_MacOS/CMakeFiles/MyBot.dir

@@ -11,8 +11,10 @@ __pycache__/
 *.iws
 .DS_Store
 *.o
+*.bat
 .vscode
 halite
 CMakeCache.txt
 *.cmake
 CMakeFiles
+MyBot.dSYM
