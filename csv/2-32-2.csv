@@ -5,4 +5,4 @@ navPercent,0.1882259917798575,0.05,0.1,0.9,float,Halite potential ratio consider
 colPrecent,3.274689699294006,0.4,1.0,4.0,float,Halite collection ratio as a function of potential
 noProdTurn,200,5,100,350,int,The number of turn left whenwe stop producing ships
 shipCapStart,950,30,500,980,int,Ship capacity when the game starts
-shipCapEnd,500,30,100,980,int,Ship capacity when the game ends
+shipCapEnd,950,30,100,980,int,Ship capacity when the game ends

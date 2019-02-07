@@ -127,13 +127,14 @@ vector<Direction> Navigator::explore(shared_ptr<Ship> ship) {
         }
     }
 
-    // TODO: remove the weird ones from the list :
-    // vector<Position> filteredPosList;
-    // for (Position pos : posList) {
-    //     if (!usedPosiitons_.count(pos)) {
-    //         filteredPosList
-    //     }
-    // }
+    //TODO: remove the weird ones from the list :
+    vector<Position> filteredPosList;
+    for (Position pos : posList) {
+        if (!usedPosiitons_.count(pos)) {
+            filteredPosList.push_back(pos);
+        }
+    }
+    posList = filteredPosList;
 
     Position maxPos = *max_element(posList.begin(), posList.end(), posFavCmp);
     usedPosiitons_.insert(maxPos);
