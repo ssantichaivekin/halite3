@@ -1,4 +1,4 @@
-# ssantichaivekin halite bot (Final Rank 201)
+# ssantichaivekin halite bot (final rank 201)
 
 Each ship greedily finds the target according to the evaluation function, which is given to be 
 halite at a square divided by the sum of distance from the ship to the square and from
