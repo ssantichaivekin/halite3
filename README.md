@@ -1,29 +1,21 @@
-# Starter Kit
+# Halite bot for ssantichaivekin (Final Rank 201)
 
-## Halite III starter kit components
-* MyBot.{extension}, a starter bot outline
-* /hlt directory, which contains modifiable helper functions for your bot
-* A Halite executable that enables local playtesting of your bot
-* The scripts run_game.bat (Windows) and run_game.sh (MacOS, Linux)
+Each ship greedily finds the target according to the evaluation function, which is given to be 
+halite at a square divided by the sum of distance from the ship to the square and from
+the square to the closest dropoff. The amount it collects depends on the current turn
+and the currnet map state. The amount it is willing to leave behind in a square depends 
+on the current turn and the current map state.
 
-## Testing your bot locally
-* Run run_game.bat (Windows) and run_game.sh (MacOS, Linux) to run a game of Halite III. By default, these scripts run a game of your MyBot.py bot vs. itself.  You can modify the board size, map seed, and the opponents of test games using the CLI.
+A large portion of the time is used on ensuring that the ship does not collide with own's
+ship and enemy's ship.
 
-## CLI
-The Halite executable comes with a command line interface (CLI). Run `$ ./halite --help` to see a full listing of available flags.
+Use genetic algorithm to fine tune the parameter by making it play against each other.
+I regret doing this, as bots grow to become better at fighting among themselves and not
+against the general leaderboard. 
 
-## Submitting your bot
-* Zip your MyBot.{extension} file and /hlt directory together.
-* Submit your zipped file here: https://halite.io/play-programming-challenge
-
-## Compiling your bot on our game servers
-* Your bot has `10 minutes` to install dependencies and compile on the game server.
-* You can run custom commands to set up your bot by including an `install.sh` file alongside `MyBot.{ext}`. This file will be executed and should be a Bash shell script. You must include the shebang line at the top: `#!/bin/bash`.
-  * For Python, you may install packages using pip, but you may not install to the global package directory. Instead, install packages as follows: `python3.6 -m pip install --system --target . numpy`
-* Some languages don't use the `MyBot.{ext}` convention. Exceptions include:
-  * Rust: a Cargo.toml in the root will be detected as Rust. Your bot will compile with `cargo rustc`.
-  * Swift: a Package.swift in the root will be detected as Swift. Your bot will compile with `swift build`.
-  * Haskell: You may upload a MyBot.hs, or you may upload a `stack.yaml`, in which case your bot will compile with `stack build`.
-  * Elixir: Upload a mix.exs. Your bot will compile with `mix deps.get` followed by `mix escript.build`.
-  * Clojure: Upload a project.clj. Your bot will compile with `lein uberjar`.
-  * .NET: Upload a MyBot.csproj or MyBot.fsproj. Your bot will compile with `dotnet restore` followed with `dotnet build`.
+Advice for myself next year:
+1. Rewrite the starter bot to fit my needs.
+2. Don't use the genetic algorithm, except when it is actually called for. I think I would try [CLOP](https://www.remi-coulom.fr/CLOP/) next time.
+3. Write or rewrite some of the visualization tools before attempting to code.
+4. Think deeply about how things actually work before jumping in to coding. Come up with a correct mathmetical model first before optimizing or linearizing for performance.
+5. Keep track of the time different function/calculation the my bot uses before reasoning about performance.
