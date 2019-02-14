@@ -11,7 +11,9 @@ ship and enemy's ship.
 
 Use genetic algorithm to fine tune the parameter by making it play against each other.
 I regret doing this, as bots grow to become better at fighting among themselves and not
-against the general leaderboard. 
+against the general leaderboard.
+
+See the bot in action at [https://halite.io/user/?user_id=2892](https://halite.io/user/?user_id=2892)
 
 Advice for myself next year:
 1. Rewrite the starter bot to fit my needs.
