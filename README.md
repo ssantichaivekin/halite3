@@ -13,6 +13,17 @@ Use genetic algorithm to fine tune the parameter by making it play against each 
 I regret doing this, as bots grow to become better at fighting among themselves and not
 against the general leaderboard.
 
+The code is divided into three main parts:
+
+1. The navigator. The navigator answers where a ship should go by looking at the states of the map. 
+It receives a ship assigned status and location, among other things, and assign a direction to the ship.
+
+2. The movement map. The movement receives the directional intent of every ship and resolves them as needed.
+It also takes care of not hitting enemy ships in a 4-player settings. When two ships is aiming to go to the 
+same position, we raise a conflict. The job of the movement map is to resolve conflicts.
+
+3. The main. The main glues everything together.
+
 See the bot in action at [https://halite.io/user/?user_id=2892](https://halite.io/user/?user_id=2892)
 
 Advice for myself next year:
