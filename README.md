@@ -6,7 +6,7 @@ the square to the closest dropoff. The amount it collects depends on the current
 and the currnet map state. The amount it is willing to leave behind in a square depends 
 on the current turn and the current map state.
 
-A large portion of the time is used on ensuring that the ship does not collide with own's
+A large portion of the code is used on ensuring that the ship does not collide with own's
 ship and enemy's ship.
 
 Use genetic algorithm to fine tune the parameter by making it play against each other.
