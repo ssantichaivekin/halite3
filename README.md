@@ -15,7 +15,8 @@ in Digital Ocean server.
 I regret doing this, as bots grow to become better at fighting among themselves and not
 against the general leaderboard.
 
-<img src="screenshot.png" width="400"/>
+<img src="screenshot.png" width="600"/>
+Here's a picture of the bot in action.
 
 The code is divided into three main parts:
 
